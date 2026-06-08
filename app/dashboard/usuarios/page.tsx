@@ -315,7 +315,7 @@ export default function UsersManagementPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-50/60"
+                      className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-50/60"
                       onClick={() => handleDelete(user.id, user.email)}
                       disabled={deleting === user.id}
                     >
