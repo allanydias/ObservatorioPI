@@ -27,7 +27,6 @@ const navByRole: Record<string, NavItem[]> = {
   admin: [
     { label: 'Início', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Usuários', href: '/dashboard/usuarios', icon: Users },
-    // { label: 'Credenciais', href: '/dashboard/credenciais', icon: KeyRound },
     { label: 'Projetos', href: '/dashboard/projetos', icon: FolderOpen },
     { label: 'Turmas', href: '/dashboard/turmas', icon: BookOpen },
     { label: 'Avaliações', href: '/dashboard/avaliacoes', icon: Award },
