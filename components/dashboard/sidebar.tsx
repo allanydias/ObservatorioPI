@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, LayoutDashboard, FolderOpen, Award, Users, Settings, LogOut, ChevronRight, ChartBar as BarChart3, KeyRound } from 'lucide-react';
+import { BookOpen, LayoutDashboard, FolderOpen, Award, Users, Settings, LogOut, ChevronRight, ChartBar as BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Profile } from '@/lib/supabase/types';
 
@@ -27,7 +27,7 @@ const navByRole: Record<string, NavItem[]> = {
   admin: [
     { label: 'Início', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Usuários', href: '/dashboard/usuarios', icon: Users },
-    { label: 'Credenciais', href: '/dashboard/credenciais', icon: KeyRound },
+    // { label: 'Credenciais', href: '/dashboard/credenciais', icon: KeyRound },
     { label: 'Projetos', href: '/dashboard/projetos', icon: FolderOpen },
     { label: 'Turmas', href: '/dashboard/turmas', icon: BookOpen },
     { label: 'Avaliações', href: '/dashboard/avaliacoes', icon: Award },
