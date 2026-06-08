@@ -94,21 +94,21 @@ export default function UsersManagementPage() {
         body: JSON.stringify(newUser),
       });
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Erro ao criar usuario');
+      if (!res.ok) throw new Error(result.error || 'Erro ao criar usuário');
       setSuccess(`Usuario ${newUser.email} criado com sucesso!`);
       setShowCreateModal(false);
       setNewUser({ email: '', password: '', full_name: '', role: 'student' });
       fetchData();
       setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar usuario');
+      setError(err instanceof Error ? err.message : 'Erro ao criar usuário');
     } finally {
       setCreating(false);
     }
   };
 
   const handleDelete = async (userId: string, userEmail: string) => {
-    if (!confirm(`Tem certeza que deseja excluir o usuario ${userEmail}? Esta acao e irreversivel.`)) return;
+    if (!confirm(`Tem certeza que deseja excluir o usuário ${userEmail}? Esta ação e irreversível.`)) return;
     setDeleting(userId);
     setError('');
     try {
@@ -128,7 +128,7 @@ export default function UsersManagementPage() {
       fetchData();
       setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao deletar usuario');
+      setError(err instanceof Error ? err.message : 'Erro ao deletar usuário');
     } finally {
       setDeleting(null);
     }
@@ -161,7 +161,7 @@ export default function UsersManagementPage() {
         if (err) throw err;
       }
 
-      setSuccess('Turma atribuida com sucesso!');
+      setSuccess('Turma atribuída com sucesso!');
       setAssigningUser(null);
       setSelectedClass('');
       fetchData();
@@ -209,12 +209,12 @@ export default function UsersManagementPage() {
     <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Gestao de Usuarios</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Crie, gerencie e atribua turmas aos usuarios.</p>
+          <h1 className="text-2xl font-bold text-foreground">Gestão de Usuários</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Crie, gerencie e atribua turmas aos usuários.</p>
         </div>
         <Button onClick={() => setShowCreateModal(true)} className="gap-2 shrink-0">
           <UserPlus className="w-4 h-4" />
-          Criar Usuario
+          Criar Usuário
         </Button>
       </div>
 
@@ -266,8 +266,8 @@ export default function UsersManagementPage() {
       ) : filtered.length === 0 ? (
         <div className="bg-card rounded-2xl border border-border p-16 text-center">
           <Users className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
-          <h3 className="font-semibold text-foreground text-lg mb-2">Nenhum usuario encontrado</h3>
-          <p className="text-muted-foreground text-sm">Ajuste os termos da busca ou crie um novo usuario.</p>
+          <h3 className="font-semibold text-foreground text-lg mb-2">Nenhum usuário encontrado</h3>
+          <p className="text-muted-foreground text-sm">Ajuste os termos da busca ou crie um novo usuário.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -327,7 +327,7 @@ export default function UsersManagementPage() {
                 {canAssignClass && (
                   <div className="mt-4 pt-4 border-t border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold text-foreground">Turmas atribuidas</p>
+                      <p className="text-xs font-semibold text-foreground">Turmas atribuídas</p>
                       <button
                         onClick={() => setAssigningUser(user.id)}
                         className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
@@ -337,7 +337,7 @@ export default function UsersManagementPage() {
                     </div>
 
                     {user.assignedClasses.length === 0 ? (
-                      <p className="text-xs text-muted-foreground italic">Nenhuma turma atribuida</p>
+                      <p className="text-xs text-muted-foreground italic">Nenhuma turma atribuída</p>
                     ) : (
                       <div className="flex flex-wrap gap-1.5">
                         {user.assignedClasses.map(cls => (
@@ -409,7 +409,7 @@ export default function UsersManagementPage() {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => { setShowCreateModal(false); setError(''); }} />
           <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-xl">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-foreground">Criar Novo Usuario</h2>
+              <h2 className="text-lg font-bold text-foreground">Criar Novo Usuário</h2>
               <button onClick={() => { setShowCreateModal(false); setError(''); }} className="p-1 rounded-lg hover:bg-muted transition-colors">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
@@ -450,13 +450,13 @@ export default function UsersManagementPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="new_password">Senha Provisoria</Label>
+                <Label htmlFor="new_password">Senha Provisória</Label>
                 <Input
                   id="new_password"
                   type="password"
                   value={newUser.password}
                   onChange={e => setNewUser(p => ({ ...p, password: e.target.value }))}
-                  placeholder="Minimo 6 caracteres"
+                  placeholder="Mínimo 6 caracteres"
                   className="h-11"
                   required
                   minLength={6}
@@ -479,11 +479,11 @@ export default function UsersManagementPage() {
               </div>
 
               <div className="bg-muted/50 rounded-xl p-3 space-y-1.5">
-                <p className="text-xs font-medium text-foreground">Informacoes sobre o acesso:</p>
+                <p className="text-xs font-medium text-foreground">Informações sobre o acesso:</p>
                 <ul className="text-xs text-muted-foreground space-y-1">
-                  <li>- O usuario recebera o e-mail de confirmacao</li>
-                  <li>- A senha provisoria devera ser alterada no primeiro acesso</li>
-                  <li>- O perfil sera criado automaticamente com o papel selecionado</li>
+                  <li>- O usuário receberá o e-mail de confirmação</li>
+                  <li>- A senha provisória deverá ser alterada no primeiro acesso</li>
+                  <li>- O perfil será criado automaticamente com o papel selecionado</li>
                 </ul>
               </div>
 
@@ -493,7 +493,7 @@ export default function UsersManagementPage() {
                 </Button>
                 <Button type="submit" disabled={creating} className="flex-1 gap-2">
                   {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                  Criar Usuario
+                  Criar Usuário
                 </Button>
               </div>
             </form>
