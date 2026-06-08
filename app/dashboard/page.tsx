@@ -8,7 +8,7 @@ import type { Project, Profile } from '@/lib/supabase/types';
 const statusLabel: Record<string, { label: string; color: string }> = {
   draft: { label: 'Rascunho', color: 'bg-gray-100 text-gray-600' },
   submitted: { label: 'Submetido', color: 'bg-blue-100 text-blue-700' },
-  under_review: { label: 'Em Revisao', color: 'bg-amber-100 text-amber-700' },
+  under_review: { label: 'Em Revisão', color: 'bg-amber-100 text-amber-700' },
   approved: { label: 'Aprovado', color: 'bg-green-100 text-green-700' },
   featured: { label: 'Destaque', color: 'bg-cyan-100 text-cyan-700' },
   rejected: { label: 'Devolvido', color: 'bg-red-100 text-red-700' },
@@ -50,20 +50,20 @@ export default async function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Painel Administrativo</h1>
-            <p className="text-muted-foreground mt-1">Ola, {firstName}. Gerencie a plataforma completa.</p>
+            <p className="text-muted-foreground mt-1">Olá, {firstName}. Gerencie a plataforma completa.</p>
           </div>
           <div className="flex gap-3">
             <Link href="/dashboard/usuarios">
-              <Button className="gap-2 shrink-0"><Users className="w-4 h-4" /> Gerenciar Usuarios</Button>
+              <Button className="gap-2 shrink-0"><Users className="w-4 h-4" /> Gerenciar Usuários</Button>
             </Link>
           </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { icon: Users, label: 'Usuarios', value: totalUsers, color: 'text-blue-600', bg: 'bg-blue-50', href: '/dashboard/usuarios' },
+            { icon: Users, label: 'Usuários', value: totalUsers, color: 'text-blue-600', bg: 'bg-blue-50', href: '/dashboard/usuarios' },
             { icon: FolderOpen, label: 'Projetos', value: totalProjects, color: 'text-emerald-600', bg: 'bg-emerald-50', href: '/dashboard/projetos' },
-            { icon: Award, label: 'Avaliacoes', value: totalEvals, color: 'text-amber-600', bg: 'bg-amber-50', href: '/dashboard/avaliacoes' },
+            { icon: Award, label: 'Avaliações', value: totalEvals, color: 'text-amber-600', bg: 'bg-amber-50', href: '/dashboard/avaliacoes' },
             { icon: GraduationCap, label: 'Turmas Ativas', value: activeClasses, color: 'text-cyan-600', bg: 'bg-cyan-50', href: '/dashboard/turmas' },
           ].map(stat => (
             <Link key={stat.label} href={stat.href}>
@@ -102,9 +102,9 @@ export default async function DashboardPage() {
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                   <BarChart3 className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold text-foreground">Relatorios e Estatisticas</h3>
+                <h3 className="font-semibold text-foreground">Relatórios e Estatísticas</h3>
               </div>
-              <p className="text-muted-foreground text-sm">Metricas de uso, distribuicao de projetos e desempenho das avaliacoes.</p>
+              <p className="text-muted-foreground text-sm">Métricas de uso, distribuição de projetos e desempenho das avaliações.</p>
             </div>
           </Link>
           <Link href="/dashboard/turmas">
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
                 </div>
                 <h3 className="font-semibold text-foreground">Gestao de Turmas</h3>
               </div>
-              <p className="text-muted-foreground text-sm">Atribua professores as turmas e gerencie a organizacao academica.</p>
+              <p className="text-muted-foreground text-sm">Atribua professores às turmas e gerencie a organização academica.</p>
             </div>
           </Link>
         </div>
@@ -125,7 +125,7 @@ export default async function DashboardPage() {
           <div>
             <p className="text-sm font-medium text-foreground">Acesso de Administrador</p>
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-              Voce tem acesso total a plataforma. Use as funcoes administrativas com responsabilidade.
+              Você tem acesso total à plataforma. Use as funções administrativas com responsabilidade.
             </p>
           </div>
         </div>
@@ -167,13 +167,13 @@ export default async function DashboardPage() {
       <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Painel do Professor</h1>
-          <p className="text-muted-foreground mt-1">Ola, {firstName}. Acompanhe e avalie os projetos das suas turmas.</p>
+          <p className="text-muted-foreground mt-1">Olá, {firstName}. Acompanhe e avalie os projetos das suas turmas.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { icon: Award, label: 'Avaliacoes Concluidas', value: completedEvals, color: 'text-green-600', bg: 'bg-green-50' },
-            { icon: Clock, label: 'Avaliacoes Pendentes', value: pendingEvals, color: 'text-amber-600', bg: 'bg-amber-50' },
+            { icon: Award, label: 'Avaliações Concluidas', value: completedEvals, color: 'text-green-600', bg: 'bg-green-50' },
+            { icon: Clock, label: 'Avaliações Pendentes', value: pendingEvals, color: 'text-amber-600', bg: 'bg-amber-50' },
             { icon: FolderOpen, label: 'Projetos para Avaliar', value: typedProjects.length, color: 'text-blue-600', bg: 'bg-blue-50' },
           ].map(stat => (
             <div key={stat.label} className="bg-card rounded-2xl border border-border p-6 flex items-center gap-4">
@@ -191,9 +191,9 @@ export default async function DashboardPage() {
         {classIds.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-8 text-center">
             <GraduationCap className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
-            <h3 className="font-semibold text-foreground text-lg mb-2">Nenhuma turma atribuida</h3>
+            <h3 className="font-semibold text-foreground text-lg mb-2">Nenhuma turma atribuída</h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto">
-              Solicite ao administrador que atribua turmas para que voce possa visualizar e avaliar os projetos.
+              Solicite ao administrador que atribua turmas para que você possa visualizar e avaliar os projetos.
             </p>
           </div>
         )}
@@ -203,7 +203,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between p-6 border-b border-border">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Projetos Aguardando Avaliacao</h2>
+                <h2 className="font-semibold text-foreground">Projetos Aguardando Avaliação</h2>
               </div>
               <Link href="/dashboard/projetos">
                 <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
@@ -263,7 +263,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { icon: FolderOpen, label: 'Total de Projetos', value: totalProjects, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { icon: Clock, label: 'Em Avaliacao', value: submittedCount, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { icon: Clock, label: 'Em Avaliação', value: submittedCount, color: 'text-amber-600', bg: 'bg-amber-50' },
           { icon: Award, label: 'Aprovados', value: approvedCount, color: 'text-emerald-600', bg: 'bg-emerald-50' },
         ].map(stat => (
           <div key={stat.label} className="bg-card rounded-2xl border border-border p-6 flex items-center gap-4">
@@ -337,8 +337,8 @@ export default async function DashboardPage() {
         <div>
           <p className="text-sm font-medium text-foreground">Privacidade dos seus dados (LGPD)</p>
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            Seus dados sao utilizados exclusivamente para fins academicos e de avaliacao.
-            Consulte nossa <Link href="/privacidade" className="text-primary hover:underline">Politica de Privacidade</Link> para mais informacoes.
+            Seus dados são utilizados exclusivamente para fins academicos e de avaliação.
+            Consulte nossa <Link href="/privacidade" className="text-primary hover:underline">Política de Privacidade</Link> para mais informações.
           </p>
         </div>
       </div>
