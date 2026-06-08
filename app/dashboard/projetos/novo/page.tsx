@@ -45,7 +45,7 @@ export default async function NewProjectPage() {
     <div className="p-6 sm:p-8 max-w-3xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">Novo Projeto</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Preencha as informacoes do seu projeto integrador.</p>
+        <p className="text-muted-foreground mt-1 text-sm">Preencha as informações do seu projeto integrador.</p>
       </div>
       <ProjectForm classes={classes ?? []} mode="create" defaultClassId={defaultClassId} singleClass={isSingleClass} />
     </div>

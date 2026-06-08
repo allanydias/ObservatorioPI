@@ -45,15 +45,15 @@ export default async function ProjectsPage({
       <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Projetos</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Nenhuma turma atribuida</p>
+          <p className="text-muted-foreground mt-1 text-sm">Nenhuma turma atribuída</p>
         </div>
         <div className="bg-card rounded-2xl border border-border p-16 text-center">
           <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Search className="w-7 h-7 text-muted-foreground/50" />
           </div>
-          <h3 className="font-semibold text-foreground text-lg mb-2">Nenhuma turma atribuida</h3>
+          <h3 className="font-semibold text-foreground text-lg mb-2">Nenhuma turma atribuída</h3>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
-            Solicite ao administrador que atribua turmas para que voce possa visualizar os projetos.
+            Solicite ao administrador que atribua turmas para que você possa visualizar os projetos.
           </p>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default async function ProjectsPage({
           <h3 className="font-semibold text-foreground text-lg mb-2">Nenhum projeto encontrado</h3>
           <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
             {profile.role === 'student'
-              ? 'Voce ainda nao submeteu nenhum projeto. Que tal comecar agora?'
+              ? 'Você ainda não submeteu nenhum projeto. Que tal começar agora?'
               : selectedClassId
                 ? 'Nenhum projeto nesta turma.'
                 : 'Nenhum projeto submetido ainda.'}
