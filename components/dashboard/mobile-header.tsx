@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, LayoutDashboard, FolderOpen, Award, Users, Settings, LogOut, ChartBar as BarChart3, Menu, X, KeyRound } from 'lucide-react';
+import { BookOpen, LayoutDashboard, FolderOpen, Award, Users, Settings, LogOut, ChartBar as BarChart3, Menu, X, KeyRound, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Profile } from '@/lib/supabase/types';
 
@@ -33,6 +33,10 @@ const navByRole: Record<string, { label: string; href: string; icon: React.Eleme
 
 export function MobileHeader({ profile }: { profile: Profile }) {
   const [open, setOpen] = useState(false);
+  
+  // NOVO: Estado para controlar o botão de saída
+  const [isLoggingOut, setIsLoggingOut] = useState(false); 
+  
   const pathname = usePathname();
   const navItems = navByRole[profile.role] ?? navByRole.student;
 
@@ -82,11 +86,23 @@ export function MobileHeader({ profile }: { profile: Profile }) {
           <Link href="/dashboard/configuracoes" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
             <Settings className="w-4 h-4" />Configurações
           </Link>
-          <form action="/auth/signout" method="POST">
-            <button type="submit" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all">
-              <LogOut className="w-4 h-4" />Sair
+          
+          {/* CORREÇÃO AQUI: Formulário interceptado para gerar feedback visual */}
+          <form action="/auth/signout" method="POST" onSubmit={() => setIsLoggingOut(true)}>
+            <button 
+              type="submit" 
+              disabled={isLoggingOut}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all disabled:opacity-50"
+            >
+              {isLoggingOut ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <LogOut className="w-4 h-4" />
+              )}
+              {isLoggingOut ? 'Saindo...' : 'Sair'}
             </button>
           </form>
+          
         </div>
       </div>
     </>

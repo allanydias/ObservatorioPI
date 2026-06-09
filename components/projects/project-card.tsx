@@ -1,6 +1,8 @@
+'use client';
 import Link from 'next/link';
-import { ExternalLink, Github, Calendar } from 'lucide-react';
+import { ExternalLink, GitBranch, Calendar, Mail } from 'lucide-react';
 import type { Project } from '@/lib/supabase/types';
+
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
   draft: { label: 'Rascunho', classes: 'bg-gray-100 text-gray-600 border-gray-200' },
@@ -12,7 +14,11 @@ const statusConfig: Record<string, { label: string; classes: string }> = {
 };
 
 interface ProjectCardProps {
-  project: Project;
+  project: Project & {
+    student_email?: string;
+    professor_email?: string;
+    admin_email?: string;
+  };
   role?: string;
 }
 
@@ -86,7 +92,7 @@ export function ProjectCard({ project, role }: ProjectCardProps) {
             <div className="flex items-center gap-2">
               {project.repository_url && (
                 <span className="w-7 h-7 flex items-center justify-center rounded-lg bg-muted hover:bg-muted/80">
-                  <Github className="w-3.5 h-3.5 text-muted-foreground" />
+                  <GitBranch className="w-3.5 h-3.5 text-muted-foreground" />
                 </span>
               )}
               {project.demo_url && (
@@ -96,6 +102,34 @@ export function ProjectCard({ project, role }: ProjectCardProps) {
               )}
             </div>
           </div>
+          
+          {role === 'partner' && project.student_email && (
+            <a
+              href={`mailto:${project.student_email}?cc=${[
+                project.professor_email,
+                project.admin_email
+              ]
+                .filter(Boolean)
+                .join(',')}&subject=${encodeURIComponent(
+                `Interesse no projeto: ${project.title}`
+              )}&body=${encodeURIComponent(
+                `Olá,
+
+          Tenho interesse no projeto "${project.title}" desenvolvido na plataforma Observatório PI.
+
+          Aguardo retorno.
+
+          Atenciosamente.`
+              )}`}
+              onClick={(e) => e.stopPropagation()}
+              className="mt-3 flex items-center justify-center gap-2 w-full text-sm border border-border rounded-xl py-2 hover:bg-muted transition-colors text-foreground"
+            >
+              <Mail className="w-4 h-4" />
+              Enviar interesse por e-mail
+            </a>
+          )}
+
+
         </div>
       </div>
     </Link>

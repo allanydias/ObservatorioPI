@@ -218,7 +218,6 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
           {evaluations.length > 0 && (
             <div className="bg-card rounded-2xl border border-border p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Star className="w-5 h-5 text-primary" />
                 <h2 className="font-semibold text-foreground">Avaliações Recebidas</h2>
               </div>
               <div className="space-y-4">
@@ -232,7 +231,7 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
                       </span>
                       {ev.overall_score !== null && (
                         <div className="flex items-center gap-1.5">
-                          <Star className="w-4 h-4 text-blue-500 fill-amber-500" />
+                          <Star className="w-4 h-4 text-blue-500 fill-blue-500" />
                           <span className="font-bold text-foreground">{ev.overall_score.toFixed(1)}</span>
                           <span className="text-muted-foreground text-sm">/ 10</span>
                         </div>

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Loader as Loader2, CircleAlert as AlertCircle, X,
   CircleCheck as CheckCircle, Users, GraduationCap, Calendar,
-  UserPlus, Trash2, BookOpen
+  UserPlus, Trash2, BookOpen, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,8 @@ export default function ClassesManagementPage() {
   const [assignType, setAssignType] = useState<'professor' | 'student'>('professor');
   const [selectedPerson, setSelectedPerson] = useState('');
   const [assigning, setAssigning] = useState(false);
-  const [currentRole, setCurrentRole] = useState<string>(''); 
+  const [currentRole, setCurrentRole] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [form, setForm] = useState({
     name: '',
@@ -46,7 +47,6 @@ export default function ClassesManagementPage() {
     setLoading(true);
 
     try {
-      // busca o role do usuário logado
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profileData } = await supabase
@@ -71,9 +71,6 @@ export default function ClassesManagementPage() {
       const profAssignments = profAssignRes.data ?? [];
       const studentAssignments = studentAssignRes.data ?? [];
 
-      console.log('studentAssignments:', studentAssignments);
-      console.log('profAssignments:', profAssignments);
-
       const classesWithMembers: ClassWithMembers[] = classList.map(cls => {
         const profIds = profAssignments.filter(a => a.class_id === cls.id).map(a => a.professor_id);
         const studentIds = studentAssignments.filter(a => a.class_id === cls.id).map(a => a.student_id);
@@ -95,6 +92,20 @@ export default function ClassesManagementPage() {
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Filtro de busca
+  const filteredClasses = searchQuery.trim()
+    ? classes.filter(cls => {
+        const lower = searchQuery.toLowerCase();
+        const matchesName = cls.name.toLowerCase().includes(lower);
+        const matchesCourse = cls.course.toLowerCase().includes(lower);
+        const matchesProfessor = cls.professors.some(p => p.full_name?.toLowerCase().includes(lower));
+        const matchesStudent = cls.students.some(s => s.full_name?.toLowerCase().includes(lower));
+        const matchesYear = String(cls.year).includes(lower);
+        const matchesSemester = `${cls.year}/${cls.semester}`.includes(lower);
+        return matchesName || matchesCourse || matchesProfessor || matchesStudent || matchesYear || matchesSemester;
+      })
+    : classes;
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,7 +194,7 @@ export default function ClassesManagementPage() {
     return allStudents.filter(s => !assigned.includes(s.id));
   };
 
-  const isAdmin = currentRole === 'admin'; // atalho
+  const isAdmin = currentRole === 'admin';
 
   return (
     <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-6">
@@ -196,7 +207,6 @@ export default function ClassesManagementPage() {
             {isAdmin ? 'Crie turmas, atribua professores e matricule alunos.' : 'Turmas em que você está atribuído.'}
           </p>
         </div>
-        {/* só admin vê o botão Nova Turma */}
         {isAdmin && (
           <Button onClick={() => setShowModal(true)} className="gap-2 shrink-0">
             <Plus className="w-4 h-4" />
@@ -204,6 +214,30 @@ export default function ClassesManagementPage() {
           </Button>
         )}
       </div>
+
+      {/* Search bar */}
+      {!loading && classes.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder={isAdmin
+              ? 'Buscar por turma, curso, professor ou aluno...'
+              : 'Buscar por turma, curso ou aluno...'}
+            className="w-full h-10 pl-9 pr-9 rounded-xl border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl p-4">
@@ -235,15 +269,28 @@ export default function ClassesManagementPage() {
             </Button>
           )}
         </div>
+      ) : filteredClasses.length === 0 ? (
+        <div className="bg-card rounded-2xl border border-border p-16 text-center">
+          <Search className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
+          <h3 className="font-semibold text-foreground text-lg mb-2">Nenhum resultado</h3>
+          <p className="text-muted-foreground text-sm mb-4">
+            Nenhuma turma corresponde a <span className="font-medium">"{searchQuery}"</span>.
+          </p>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="text-sm text-primary hover:underline"
+          >
+            Limpar busca
+          </button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {classes.map(cls => (
+          {filteredClasses.map(cls => (
             <div key={cls.id} className="bg-card rounded-2xl border border-border p-6 card-hover">
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
                   <GraduationCap className="w-5 h-5 text-emerald-600" />
                 </div>
-                {/* só admin pode toggle ativo/inativo */}
                 {isAdmin ? (
                   <button
                     onClick={() => handleToggleActive(cls.id, cls.is_active)}
@@ -283,7 +330,6 @@ export default function ClassesManagementPage() {
               <div className="border-t border-border pt-4 mt-1">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-semibold text-foreground">Professores</p>
-                  {/*só admin atribui professor */}
                   {isAdmin && (
                     <button
                       onClick={() => { setAssigningClass(cls.id); setAssignType('professor'); }}
@@ -302,7 +348,6 @@ export default function ClassesManagementPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-emerald-700 truncate">{prof.full_name || 'Professor'}</p>
                         </div>
-                        {/* só admin remove professor */}
                         {isAdmin && (
                           <button onClick={() => handleRemoveProfessor(cls.id, prof.id)} className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors">
                             <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
@@ -318,7 +363,6 @@ export default function ClassesManagementPage() {
               <div className="border-t border-border pt-4 mt-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-semibold text-foreground">Alunos</p>
-                  {/* só admin matricula aluno */}
                   {isAdmin && (
                     <button
                       onClick={() => { setAssigningClass(cls.id); setAssignType('student'); }}
@@ -337,7 +381,6 @@ export default function ClassesManagementPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-blue-700 truncate">{stu.full_name || 'Aluno'}</p>
                         </div>
-                        {/* só admin remove aluno */}
                         {isAdmin && (
                           <button onClick={() => handleRemoveStudent(cls.id, stu.id)} className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors">
                             <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />

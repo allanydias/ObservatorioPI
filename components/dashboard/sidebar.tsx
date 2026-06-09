@@ -33,7 +33,11 @@ const navByRole: Record<string, NavItem[]> = {
     { label: 'Avaliações', href: '/dashboard/avaliacoes', icon: Award },
     { label: 'Relatórios', href: '/dashboard/relatorios', icon: BarChart3 },
   ],
-  partner: [],
+  // Atualização: Links exclusivos para a Empresa Parceira (Vitrine)
+  partner: [
+    { label: 'Início', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Projetos', href: '/dashboard/projetos', icon: FolderOpen },
+  ],
 };
 
 interface SidebarProps {
