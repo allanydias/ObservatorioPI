@@ -31,6 +31,7 @@ export default function ClassesManagementPage() {
   const [assignType, setAssignType] = useState<'professor' | 'student'>('professor');
   const [selectedPerson, setSelectedPerson] = useState('');
   const [assigning, setAssigning] = useState(false);
+  const [currentRole, setCurrentRole] = useState<string>(''); 
 
   const [form, setForm] = useState({
     name: '',
@@ -45,6 +46,17 @@ export default function ClassesManagementPage() {
     setLoading(true);
 
     try {
+      // busca o role do usuário logado
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+        setCurrentRole(profileData?.role ?? '');
+      }
+
       const [classesRes, profRes, studentRes, profAssignRes, studentAssignRes] = await Promise.all([
         supabase.from('classes').select('*').order('year', { ascending: false }),
         supabase.from('profiles').select('*').eq('role', 'professor').eq('is_active', true).order('full_name'),
@@ -58,6 +70,9 @@ export default function ClassesManagementPage() {
       const studentList = (studentRes.data ?? []) as Profile[];
       const profAssignments = profAssignRes.data ?? [];
       const studentAssignments = studentAssignRes.data ?? [];
+
+      console.log('studentAssignments:', studentAssignments);
+      console.log('profAssignments:', profAssignments);
 
       const classesWithMembers: ClassWithMembers[] = classList.map(cls => {
         const profIds = profAssignments.filter(a => a.class_id === cls.id).map(a => a.professor_id);
@@ -168,17 +183,26 @@ export default function ClassesManagementPage() {
     return allStudents.filter(s => !assigned.includes(s.id));
   };
 
+  const isAdmin = currentRole === 'admin'; // atalho
+
   return (
     <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Gestão de Turmas</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Crie turmas, atribua professores e matricule alunos.</p>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isAdmin ? 'Gestão de Turmas' : 'Minhas Turmas'}
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {isAdmin ? 'Crie turmas, atribua professores e matricule alunos.' : 'Turmas em que você está atribuído.'}
+          </p>
         </div>
-        <Button onClick={() => setShowModal(true)} className="gap-2 shrink-0">
-          <Plus className="w-4 h-4" />
-          Nova Turma
-        </Button>
+        {/* só admin vê o botão Nova Turma */}
+        {isAdmin && (
+          <Button onClick={() => setShowModal(true)} className="gap-2 shrink-0">
+            <Plus className="w-4 h-4" />
+            Nova Turma
+          </Button>
+        )}
       </div>
 
       {error && (
@@ -202,10 +226,14 @@ export default function ClassesManagementPage() {
         <div className="bg-card rounded-2xl border border-border p-16 text-center">
           <GraduationCap className="w-14 h-14 text-muted-foreground/40 mx-auto mb-4" />
           <h3 className="font-semibold text-foreground text-lg mb-2">Nenhuma turma cadastrada</h3>
-          <p className="text-muted-foreground text-sm mb-6">Crie a primeira turma para organizar os projetos.</p>
-          <Button onClick={() => setShowModal(true)} className="gap-2">
-            <Plus className="w-4 h-4" /> Criar Turma
-          </Button>
+          <p className="text-muted-foreground text-sm mb-6">
+            {isAdmin ? 'Crie a primeira turma para organizar os projetos.' : 'Você ainda não está atribuído a nenhuma turma.'}
+          </p>
+          {isAdmin && (
+            <Button onClick={() => setShowModal(true)} className="gap-2">
+              <Plus className="w-4 h-4" /> Criar Turma
+            </Button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -215,16 +243,25 @@ export default function ClassesManagementPage() {
                 <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
                   <GraduationCap className="w-5 h-5 text-emerald-600" />
                 </div>
-                <button
-                  onClick={() => handleToggleActive(cls.id, cls.is_active)}
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full cursor-pointer transition-colors ${
-                    cls.is_active
-                      ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                      : 'bg-red-50 text-red-700 hover:bg-red-100'
-                  }`}
-                >
-                  {cls.is_active ? 'Ativa' : 'Inativa'}
-                </button>
+                {/* só admin pode toggle ativo/inativo */}
+                {isAdmin ? (
+                  <button
+                    onClick={() => handleToggleActive(cls.id, cls.is_active)}
+                    className={`text-xs font-medium px-2.5 py-1 rounded-full cursor-pointer transition-colors ${
+                      cls.is_active
+                        ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                        : 'bg-red-50 text-red-700 hover:bg-red-100'
+                    }`}
+                  >
+                    {cls.is_active ? 'Ativa' : 'Inativa'}
+                  </button>
+                ) : (
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                    cls.is_active ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                  }`}>
+                    {cls.is_active ? 'Ativa' : 'Inativa'}
+                  </span>
+                )}
               </div>
               <h3 className="font-semibold text-foreground mb-1">{cls.name}</h3>
               <p className="text-muted-foreground text-sm mb-3">{cls.course}</p>
@@ -246,12 +283,15 @@ export default function ClassesManagementPage() {
               <div className="border-t border-border pt-4 mt-1">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-semibold text-foreground">Professores</p>
-                  <button
-                    onClick={() => { setAssigningClass(cls.id); setAssignType('professor'); }}
-                    className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
-                  >
-                    <UserPlus className="w-3 h-3" /> Atribuir
-                  </button>
+                  {/*só admin atribui professor */}
+                  {isAdmin && (
+                    <button
+                      onClick={() => { setAssigningClass(cls.id); setAssignType('professor'); }}
+                      className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+                    >
+                      <UserPlus className="w-3 h-3" /> Atribuir
+                    </button>
+                  )}
                 </div>
                 {cls.professors.length === 0 ? (
                   <p className="text-xs text-muted-foreground italic">Nenhum professor atribuido</p>
@@ -262,9 +302,12 @@ export default function ClassesManagementPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-emerald-700 truncate">{prof.full_name || 'Professor'}</p>
                         </div>
-                        <button onClick={() => handleRemoveProfessor(cls.id, prof.id)} className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors">
-                          <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-                        </button>
+                        {/* só admin remove professor */}
+                        {isAdmin && (
+                          <button onClick={() => handleRemoveProfessor(cls.id, prof.id)} className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors">
+                            <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -275,12 +318,15 @@ export default function ClassesManagementPage() {
               <div className="border-t border-border pt-4 mt-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-semibold text-foreground">Alunos</p>
-                  <button
-                    onClick={() => { setAssigningClass(cls.id); setAssignType('student'); }}
-                    className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
-                  >
-                    <BookOpen className="w-3 h-3" /> Matricular
-                  </button>
+                  {/* só admin matricula aluno */}
+                  {isAdmin && (
+                    <button
+                      onClick={() => { setAssigningClass(cls.id); setAssignType('student'); }}
+                      className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+                    >
+                      <BookOpen className="w-3 h-3" /> Matricular
+                    </button>
+                  )}
                 </div>
                 {cls.students.length === 0 ? (
                   <p className="text-xs text-muted-foreground italic">Nenhum aluno matriculado</p>
@@ -291,17 +337,20 @@ export default function ClassesManagementPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-blue-700 truncate">{stu.full_name || 'Aluno'}</p>
                         </div>
-                        <button onClick={() => handleRemoveStudent(cls.id, stu.id)} className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors">
-                          <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
-                        </button>
+                        {/* só admin remove aluno */}
+                        {isAdmin && (
+                          <button onClick={() => handleRemoveStudent(cls.id, stu.id)} className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors">
+                            <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Assign inline */}
-              {assigningClass === cls.id && (
+              {/* Assign inline — só admin */}
+              {isAdmin && assigningClass === cls.id && (
                 <div className="mt-3 bg-muted/30 rounded-xl p-3 space-y-2 border border-border">
                   <p className="text-xs font-medium text-foreground">
                     {assignType === 'professor' ? 'Atribuir professor' : 'Matricular aluno'}
@@ -319,21 +368,11 @@ export default function ClassesManagementPage() {
                     ))}
                   </select>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={handleAssign}
-                      disabled={!selectedPerson || assigning}
-                      className="flex-1 gap-1.5 h-8 text-xs"
-                    >
+                    <Button size="sm" onClick={handleAssign} disabled={!selectedPerson || assigning} className="flex-1 gap-1.5 h-8 text-xs">
                       {assigning ? <Loader2 className="w-3 h-3 animate-spin" /> : <UserPlus className="w-3 h-3" />}
                       {assignType === 'professor' ? 'Atribuir' : 'Matricular'}
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => { setAssigningClass(null); setSelectedPerson(''); }}
-                      className="flex-1 h-8 text-xs"
-                    >
+                    <Button size="sm" variant="outline" onClick={() => { setAssigningClass(null); setSelectedPerson(''); }} className="flex-1 h-8 text-xs">
                       Cancelar
                     </Button>
                   </div>
@@ -344,8 +383,8 @@ export default function ClassesManagementPage() {
         </div>
       )}
 
-      {/* Create Class Modal */}
-      {showModal && (
+      {/* Create Class Modal — só admin */}
+      {isAdmin && showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="relative bg-card border border-border rounded-2xl p-6 w-full max-w-md shadow-xl">

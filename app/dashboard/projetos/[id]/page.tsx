@@ -23,6 +23,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
   const isOwner = project.owner_id === user.id;
   const isAdmin = profile.role === 'admin';
+  const isProfessor = profile.role === 'professor';
   const canEdit = isOwner && ['draft', 'submitted', 'rejected'].includes(project.status);
 
   const { data: classes } = await supabase
@@ -47,6 +48,30 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     .eq('id', project.owner_id)
     .maybeSingle();
 
+  const { data: classData } = project.class_id ? await supabase
+    .from('classes')
+    .select('name, semester, year')
+    .eq('id', project.class_id)
+    .maybeSingle() : { data: null };
+
+  const { data: classProfessor } = project.class_id ? await supabase
+    .from('class_professors')
+    .select('professor_id')
+    .eq('class_id', project.class_id)
+    .maybeSingle() : { data: null };
+
+  const { data: professorProfile } = classProfessor?.professor_id ? await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', classProfessor.professor_id)
+    .maybeSingle() : { data: null };
+
+  const classInfo = classData ? {
+    name: classData.name,
+    semester: `${classData.semester}/${classData.year}`,
+    professorName: professorProfile?.full_name ?? '',
+  } : null;
+
   return (
     <div className="p-6 sm:p-8 max-w-4xl mx-auto">
       <ProjectDetail
@@ -59,6 +84,8 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         evaluations={(evaluations ?? []) as unknown as import('@/components/projects/project-detail').EvaluationData[]}
         ownerProfile={ownerProfile as { full_name: string; email: string; course: string } | null}
         isAdmin={isAdmin}
+        isProfessor={isProfessor} 
+        classInfo={classInfo}
       />
     </div>
   );

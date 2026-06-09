@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowLeft, CreditCard as Edit, Trash2, ExternalLink, Github, Play,
+  ArrowLeft, CreditCard as Edit, Trash2, ExternalLink, GitBranch, Play,
   Calendar, Send, CircleAlert as AlertCircle, Loader as Loader2,
-  CircleCheck as CheckCircle, Clock, Star, Shield, User
+  CircleCheck as CheckCircle, Clock, Star, Shield, User, Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
@@ -42,15 +42,23 @@ interface ProjectDetailProps {
   evaluations: EvaluationData[];
   ownerProfile: { full_name: string; email: string; course: string } | null;
   isAdmin: boolean;
+  isProfessor: boolean;
+  classInfo?: { name: string; semester: string; professorName: string } | null;
 }
 
-export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [], ownerProfile, isAdmin }: ProjectDetailProps) {
+export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [], ownerProfile, isAdmin, isProfessor, classInfo }: ProjectDetailProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState('');
   const [changingStatus, setChangingStatus] = useState<string | null>(null);
+  const [showEvalModal, setShowEvalModal] = useState(false);
+  const [evalScore, setEvalScore] = useState('');
+  const [evalFeedback, setEvalFeedback] = useState('');
+  const [evalStrengths, setEvalStrengths] = useState('');
+  const [evalImprovements, setEvalImprovements] = useState('');
+  const [savingEval, setSavingEval] = useState(false);
 
   const st = statusConfig[project.status] ?? statusConfig.draft;
   const StatusIcon = st.icon;
@@ -105,6 +113,36 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
     } finally {
       setChangingStatus(null);
     }
+  }; // 👈 fecha handleStatusChange corretamente
+
+  const handleSaveEval = async () => {
+    setSavingEval(true);
+    setError('');
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error: err } = await supabase.from('evaluations').insert({
+        project_id: project.id,
+        professor_id: user?.id,
+        overall_score: evalScore ? parseFloat(evalScore) : null,
+        feedback: evalFeedback,
+        strengths: evalStrengths,
+        improvements: evalImprovements,
+        status: 'completed',
+        evaluated_at: new Date().toISOString(),
+      });
+      if (err) throw err;
+      setShowEvalModal(false);
+      setEvalScore('');
+      setEvalFeedback('');
+      setEvalStrengths('');
+      setEvalImprovements('');
+      router.refresh();
+    } catch {
+      setError('Erro ao salvar avaliação.');
+    } finally {
+      setSavingEval(false);
+    }
   };
 
   return (
@@ -157,7 +195,7 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
 
           {project.description && (
             <div className="bg-card rounded-2xl border border-border p-6">
-              <h2 className="font-semibold text-foreground mb-3"> Descrição Completa</h2>
+              <h2 className="font-semibold text-foreground mb-3">Descrição Completa</h2>
               <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-sm">
                 {project.description}
               </div>
@@ -177,12 +215,11 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
             </div>
           )}
 
-          {/* Evaluations section */}
           {evaluations.length > 0 && (
             <div className="bg-card rounded-2xl border border-border p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Star className="w-5 h-5 text-amber-500" />
-                <h2 className="font-semibold text-foreground">Avaliacoes Recebidas</h2>
+                <Star className="w-5 h-5 text-primary" />
+                <h2 className="font-semibold text-foreground">Avaliações Recebidas</h2>
               </div>
               <div className="space-y-4">
                 {evaluations.map(ev => (
@@ -191,11 +228,11 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
                       <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                         ev.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
                       }`}>
-                        {ev.status === 'completed' ? 'Concluida' : 'Pendente'}
+                        {ev.status === 'completed' ? 'Concluída' : 'Pendente'}
                       </span>
                       {ev.overall_score !== null && (
                         <div className="flex items-center gap-1.5">
-                          <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                          <Star className="w-4 h-4 text-blue-500 fill-amber-500" />
                           <span className="font-bold text-foreground">{ev.overall_score.toFixed(1)}</span>
                           <span className="text-muted-foreground text-sm">/ 10</span>
                         </div>
@@ -233,8 +270,8 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
 
         {/* Sidebar */}
         <div className="space-y-4">
-          {/* Owner info */}
-          {ownerProfile && (role === 'admin' || role === 'professor') && (
+          {/* Owner info — visível para todos */}
+          {ownerProfile && (
             <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
               <h3 className="font-semibold text-foreground text-sm">Autor do Projeto</h3>
               <div className="flex items-center gap-3">
@@ -253,7 +290,7 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
           {/* Student actions */}
           {isOwner && canEdit && (
             <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
-              <h3 className="font-semibold text-foreground text-sm">Acoes</h3>
+              <h3 className="font-semibold text-foreground text-sm">Ações</h3>
               <Link href={`/dashboard/projetos/${project.id}/editar`}>
                 <Button variant="outline" className="w-full gap-2 justify-start h-10">
                   <Edit className="w-4 h-4" /> Editar Projeto
@@ -289,20 +326,25 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
             </div>
           )}
 
-          {/* Admin actions */}
-          {isAdmin && (
+          {/* Ações do Professor */}
+          {isProfessor && (
             <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-amber-600" />
-                <h3 className="font-semibold text-foreground text-sm">Ações do Admin</h3>
+                <Users className="w-4 h-4 text-blue-500" />
+                <h3 className="font-semibold text-foreground text-sm">Ações do Professor</h3>
               </div>
-
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground font-medium">Alterar Status:</p>
+                <Button
+                  size="sm"
+                  onClick={() => setShowEvalModal(true)}
+                  className="w-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  Avaliar Projeto
+                </Button>
+                <p className="text-xs text-muted-foreground font-medium pt-1">Alterar Status:</p>
                 {[
-                  { status: 'under_review', label: 'Em Reviso', color: 'bg-amber-500 hover:bg-amber-600' },
+                  { status: 'under_review', label: 'Em Revisão', color: 'bg-amber-500 hover:bg-amber-600' },
                   { status: 'approved', label: 'Aprovar', color: 'bg-green-500 hover:bg-green-600' },
-                  { status: 'featured', label: 'Destacar', color: 'bg-cyan-500 hover:bg-cyan-600' },
                   { status: 'rejected', label: 'Devolver', color: 'bg-red-500 hover:bg-red-600' },
                 ]
                   .filter(s => s.status !== project.status)
@@ -322,13 +364,53 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
             </div>
           )}
 
+          {/* Ações do Admin */}
+          {isAdmin && (
+            <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-amber-600" />
+                <h3 className="font-semibold text-foreground text-sm">Ações do Admin</h3>
+              </div>
+              <div className="space-y-2">
+                {project.status === 'approved' && (
+                  <Button
+                    size="sm"
+                    onClick={() => handleStatusChange('featured')}
+                    disabled={changingStatus !== null}
+                    className="w-full gap-2 text-white bg-cyan-500 hover:bg-cyan-600"
+                  >
+                    {changingStatus === 'featured' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    Destacar
+                  </Button>
+                )}
+                {project.status !== 'approved' && (
+                  <p className="text-xs text-muted-foreground">
+                    Apenas projetos <strong>aprovados</strong> podem ser destacados.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Details */}
           <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
             <h3 className="font-semibold text-foreground text-sm">Detalhes</h3>
             {project.semester_year && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">{project.semester_year}</span>
+                <span className="text-muted-foreground">Semestre: {project.semester_year}º</span>
+              </div>
+            )}
+            {classInfo?.name && (
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Turma: {classInfo.name}</span>
+              </div>
+            )}
+            {classInfo?.professorName && (
+              <div className="flex items-center gap-2 text-sm">
+                <User className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Professor: {classInfo.professorName}</span>
               </div>
             )}
             <div className="flex items-center gap-2 text-sm">
@@ -346,7 +428,7 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
               {project.repository_url && (
                 <a href={project.repository_url} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="w-full gap-2 justify-start h-9 text-sm">
-                    <Github className="w-4 h-4" /> Repositório
+                    <GitBranch className="w-4 h-4" /> Repositório
                   </Button>
                 </a>
               )}
@@ -368,6 +450,62 @@ export function ProjectDetail({ project, canEdit, isOwner, role, evaluations = [
           )}
         </div>
       </div>
+
+      {/* Modal de Avaliação */}
+      {showEvalModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-card rounded-2xl border border-border w-full max-w-lg p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-blue-500" />
+                <h2 className="font-semibold text-foreground">Avaliar Projeto</h2>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setShowEvalModal(false)} className="rounded-xl">
+                <span className="text-lg leading-none">✕</span>
+              </Button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Nota (0 a 10)</label>
+                <input
+                  type="number" min="0" max="10" step="0.1"
+                  value={evalScore} onChange={e => setEvalScore(e.target.value)}
+                  placeholder="Ex: 8.5"
+                  className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Feedback Geral</label>
+                <textarea value={evalFeedback} onChange={e => setEvalFeedback(e.target.value)}
+                  placeholder="Escreva um feedback sobre o projeto..." rows={3}
+                  className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-green-700 mb-1 block">Pontos Fortes</label>
+                <textarea value={evalStrengths} onChange={e => setEvalStrengths(e.target.value)}
+                  placeholder="O que o projeto tem de bom..." rows={2}
+                  className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-amber-700 mb-1 block">Melhorias Sugeridas</label>
+                <textarea value={evalImprovements} onChange={e => setEvalImprovements(e.target.value)}
+                  placeholder="O que pode ser melhorado..." rows={2}
+                  className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={() => setShowEvalModal(false)} className="flex-1">Cancelar</Button>
+              <Button onClick={handleSaveEval} disabled={savingEval} className="flex-1 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                {savingEval ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Salvar Avaliação
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

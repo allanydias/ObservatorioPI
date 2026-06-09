@@ -135,33 +135,25 @@ export default async function DashboardPage() {
 
   // Professor dashboard
   if (profile.role === 'professor') {
-    const { data: myEvals } = await supabase
-      .from('evaluations')
-      .select('id, status')
-      .eq('professor_id', user.id);
-
-    const evals = myEvals ?? [];
-    const completedEvals = evals.filter((e: { status: string }) => e.status === 'completed').length;
-    const pendingEvals = evals.filter((e: { status: string }) => e.status === 'pending').length;
-
-    // Get professor's assigned classes
     const { data: assignments } = await supabase
       .from('class_professors')
       .select('class_id')
       .eq('professor_id', user.id);
     const classIds = (assignments ?? []).map(a => a.class_id);
 
-    let typedProjects: Project[] = [];
+    let allClassProjects: Project[] = [];
     if (classIds.length > 0) {
-      const { data: recentProjects } = await supabase
+      const { data: proj } = await supabase
         .from('projects')
         .select('*')
         .in('class_id', classIds)
-        .in('status', ['submitted', 'under_review'])
-        .order('submitted_at', { ascending: true })
-        .limit(5);
-      typedProjects = (recentProjects ?? []) as Project[];
+        .order('submitted_at', { ascending: true });
+      allClassProjects = (proj ?? []) as Project[];
     }
+
+    const underReview = allClassProjects.filter(p => p.status === 'under_review').length;
+    const approved = allClassProjects.filter(p => p.status === 'approved' || p.status === 'featured').length;
+    const toEvaluate = allClassProjects.filter(p => p.status === 'submitted' || p.status === 'under_review');
 
     return (
       <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8">
@@ -172,9 +164,9 @@ export default async function DashboardPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { icon: Award, label: 'Avaliações Concluidas', value: completedEvals, color: 'text-green-600', bg: 'bg-green-50' },
-            { icon: Clock, label: 'Avaliações Pendentes', value: pendingEvals, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { icon: FolderOpen, label: 'Projetos para Avaliar', value: typedProjects.length, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { icon: Award, label: 'Aprovados', value: approved, color: 'text-green-600', bg: 'bg-green-50' },
+            { icon: Clock, label: 'Em Revisão', value: underReview, color: 'text-amber-600', bg: 'bg-amber-50' },
+            { icon: FolderOpen, label: 'Projetos para Avaliar', value: toEvaluate.length, color: 'text-blue-600', bg: 'bg-blue-50' },
           ].map(stat => (
             <div key={stat.label} className="bg-card rounded-2xl border border-border p-6 flex items-center gap-4">
               <div className={`w-12 h-12 ${stat.bg} rounded-xl flex items-center justify-center shrink-0`}>
@@ -198,7 +190,7 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {typedProjects.length > 0 && (
+        {toEvaluate.length > 0 && (
           <div className="bg-card rounded-2xl border border-border">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <div className="flex items-center gap-2">
@@ -212,7 +204,7 @@ export default async function DashboardPage() {
               </Link>
             </div>
             <div className="divide-y divide-border">
-              {typedProjects.map(project => {
+              {toEvaluate.map(project => {
                 const st = statusLabel[project.status] ?? statusLabel.draft;
                 return (
                   <Link key={project.id} href={`/dashboard/projetos/${project.id}`}>
