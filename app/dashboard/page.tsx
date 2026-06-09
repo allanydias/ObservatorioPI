@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { FolderOpen, Award, TrendingUp, Clock, ArrowRight, Plus, Users, GraduationCap, ChartBar as BarChart3, Shield, BookOpen } from 'lucide-react';
+import { FolderOpen, Award, TrendingUp, Clock, ArrowRight, Plus, Users, GraduationCap, ChartBar as BarChart3, Shield, BookOpen, Star, Mail, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { Project, Profile } from '@/lib/supabase/types';
+import { ProjectCard } from '@/components/projects/project-card';
 
 const statusLabel: Record<string, { label: string; color: string }> = {
   draft: { label: 'Rascunho', color: 'bg-gray-100 text-gray-600' },
@@ -221,6 +222,136 @@ export default async function DashboardPage() {
                 );
               })}
             </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Partner dashboard
+  if (profile.role === 'partner') {
+    // Busca o email do admin para CC
+    const { data: adminProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('role', 'admin')
+      .limit(1)
+      .maybeSingle();
+    const adminEmail = adminProfile?.email ?? null;
+
+    // Busca projetos aprovados/destaque com dados do dono (student) e professor
+    const { data: rawProjects } = await supabase
+      .from('projects')
+      .select(`
+        *,
+        owner:profiles!projects_owner_id_fkey(email, full_name),
+        class:classes(
+          id,
+          class_professors(
+            professor:profiles!class_professors_professor_id_fkey(email)
+          )
+        )
+      `)
+      .in('status', ['approved', 'featured'])
+      .order('status', { ascending: false })
+      .limit(20);
+
+    const allPartnerProjects = (rawProjects ?? []).map((p: any) => ({
+      ...p,
+      student_email: p.owner?.email ?? null,
+      professor_email: p.class?.class_professors?.[0]?.professor?.email ?? null,
+      admin_email: adminEmail,
+    }));
+
+    const featuredProjects = allPartnerProjects.filter((p: any) => p.status === 'featured');
+    const approvedProjects = allPartnerProjects.filter((p: any) => p.status === 'approved');
+    const totalAvailable = allPartnerProjects.length;
+    const totalFeatured = featuredProjects.length;
+    const totalContacts = 0; // pode ser implementado futuramente
+
+    return (
+      <div className="p-6 sm:p-8 max-w-6xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Olá, {firstName}!</h1>
+            <p className="text-muted-foreground mt-1">Explore os projetos disponíveis para contato.</p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/40 border border-border rounded-xl px-4 py-2">
+            <Building2 className="w-4 h-4" />
+            <span>Empresa Parceira</span>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { icon: FolderOpen, label: 'Projetos disponíveis', value: totalAvailable, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { icon: Star, label: 'Em destaque', value: totalFeatured, color: 'text-cyan-600', bg: 'bg-cyan-50' },
+            { icon: Mail, label: 'Contatos enviados', value: totalContacts, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          ].map(stat => (
+            <div key={stat.label} className="bg-card rounded-2xl border border-border p-6 flex items-center gap-4">
+              <div className={`w-12 h-12 ${stat.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                <div className="text-muted-foreground text-sm">{stat.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Projetos em destaque */}
+        {featuredProjects.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-cyan-600" />
+                <h2 className="font-semibold text-foreground">Projetos em destaque</h2>
+              </div>
+              <Link href="/dashboard/projetos">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+                  Ver todos <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {featuredProjects.slice(0, 4).map((project: any) => (
+                <ProjectCard key={project.id} project={project} role="partner" />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Outros projetos aprovados */}
+        {approvedProjects.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <h2 className="font-semibold text-foreground">Outros projetos aprovados</h2>
+              </div>
+              <Link href="/dashboard/projetos">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+                  Ver todos <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {approvedProjects.slice(0, 4).map((project: any) => (
+                <ProjectCard key={project.id} project={project} role="partner" />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Nenhum projeto */}
+        {allPartnerProjects.length === 0 && (
+          <div className="bg-card rounded-2xl border border-border p-12 text-center">
+            <FolderOpen className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+            <h3 className="font-semibold text-foreground mb-2">Nenhum projeto disponível ainda</h3>
+            <p className="text-muted-foreground text-sm">Os projetos aprovados aparecerão aqui assim que forem publicados.</p>
           </div>
         )}
       </div>
