@@ -142,6 +142,58 @@ If we had another semester, we would implement:
 
 ---
 
+## 🔬 Research, Technology & Society
+
+### Problem Definition
+
+At Faculdade SENAC, Integrative Projects were delivered via Microsoft Teams, causing fragmented submissions across channels and classes, students added to incorrect groups, and no clear accountability when only one group member submitted on behalf of the team.
+
+### Literature Review
+
+Existing academic management systems (Moodle, Google Classroom, Microsoft Teams) offer generic file submission but lack structured evaluation workflows, role-based portfolios, and AI-assisted mentoring tailored to project-based learning environments.
+
+### Methodology
+
+The project followed an agile development approach, combining requirements engineering (IEEE 830 SRS), User Story Mapping, MoSCoW prioritization, and iterative prototyping in Figma, with development tracked via Trello and version control via GitHub.
+
+### Feasibility
+
+The solution was built using cost-free tools (Supabase free tier, Groq free inference, Vercel free deploy), making it technically and financially viable for academic deployment without institutional investment.
+
+### Expected Results
+
+- Centralized submission and versioning of Integrative Projects
+- Standardized, traceable evaluation process for professors
+- Increased visibility of student work through a public portfolio
+- Reduced administrative overhead for class and user management
+
+---
+
+## 🧩 Extension Unit
+
+### Management Tool
+
+Project development was tracked using **Trello**, organized in a Kanban board with Backlog, In Progress (WIP), and Done columns: [Trello Board](https://trello.com/b/i1wHTh4G/pi-gestao-de-projetos)
+
+### Integration Across Disciplines
+
+This project integrates knowledge from multiple curricular units:
+
+| Curricular Unit | Contribution |
+|---|---|
+| Requirements Engineering | SRS documentation (IEEE 830), user stories, use cases |
+| Coding – Languages & Techniques | Feature implementation (Next.js, TypeScript) |
+| Database | Conceptual/logical modeling, CRUD operations |
+| Creativity | Prototyping and interface improvements (Figma) |
+| Legislation | LGPD compliance and data protection |
+| Tech English | Bilingual README and project documentation |
+
+### Development Space
+
+The project's initial structure was bootstrapped with AI assistance and iteratively developed and reviewed through GitHub.
+
+---
+
 ## 🔗 Links
 
 - 🌐 **Live Demo:** https://observatorio-pi-eight.vercel.app
@@ -157,14 +209,13 @@ Developed by **Group Observar** — Faculdade SENAC 2026:
 | Name | Role | GitHub |
 |---|---|---|
 | Allany Dias | Full Stack Dev & AI | [GitHub](https://github.com/allanydias) |
-| Lorena Torres | Full Stack Dev | [GitHub](https://github.com/lorena-torres07) |
-| José Luis | Backend Developer | GitHub |
-| Mariana Oliveira | UI/UX & Frontend | GitHub |
+| Lorena Torres | Backend Developer| [GitHub](https://github.com/lorena-torres07) |
+| José Luis | Requirements | GitHub |
+| Mariana Oliveira | UI/UX | GitHub |
 | Mayara Marina | Requirements & Documentation | GitHub |
 
 *Academic Advisor: Prof. Guibson Barros*
 *Tech English Professor: Prof.Leonardo Lucena*
-
 
 ---
 
@@ -291,6 +342,8 @@ Acesse em `http://localhost:3000`
 
 ## 🗄️ Estrutura do Banco de Dados
 
+> 📊 [Ver diagrama ER interativo no dbdiagram.io](https://dbdiagram.io/d/6a2c33f75c789b8acb723a43)
+
 | Tabela | Descrição |
 |---|---|
 | `profiles` | Dados dos usuários |
@@ -340,6 +393,58 @@ Se tivéssemos mais um semestre, implementaríamos:
 
 ---
 
+## 🔬 Pesquisa, Tecnologia e Sociedade
+
+### Definição do Problema
+
+Na Faculdade SENAC, os Projetos Integradores eram entregues via Microsoft Teams, causando fragmentação das entregas entre canais e turmas, alunos adicionados em grupos incorretos e ausência de rastreabilidade quando apenas um integrante realizava o envio em nome do grupo.
+
+### Revisão da Literatura
+
+Sistemas de gestão acadêmica existentes (Moodle, Google Classroom, Microsoft Teams) oferecem envio genérico de arquivos, mas carecem de fluxos estruturados de avaliação, portfólios baseados em perfil e mentoria por IA voltada a ambientes de aprendizagem baseados em projetos.
+
+### Metodologia
+
+O projeto seguiu uma abordagem ágil, combinando Engenharia de Requisitos (SRS no padrão IEEE 830), User Story Mapping, priorização MoSCoW e prototipagem iterativa no Figma, com acompanhamento via Trello e versionamento via GitHub.
+
+### Viabilidade
+
+A solução foi construída com ferramentas gratuitas (Supabase plano free, inferência gratuita da Groq, deploy gratuito na Vercel), tornando-a tecnicamente e financeiramente viável para uso acadêmico sem investimento institucional.
+
+### Resultados Esperados
+
+- Centralização do envio e versionamento dos Projetos Integradores
+- Processo de avaliação padronizado e rastreável para professores
+- Maior visibilidade dos trabalhos via portfólio público
+- Redução da sobrecarga administrativa na gestão de turmas e usuários
+
+---
+
+## 🧩 Unidade de Extensão
+
+### Ferramenta Gerencial
+
+O desenvolvimento do projeto foi acompanhado pelo **Trello**, organizado em quadro Kanban com colunas de Backlog, Em andamento (WIP) e Concluído: [Quadro Trello](https://trello.com/b/i1wHTh4G/pi-gestao-de-projetos)
+
+### Integração entre Disciplinas
+
+Este projeto integra conhecimentos de diversas unidades curriculares:
+
+| Unidade Curricular | Contribuição |
+|---|---|
+| Engenharia de Requisitos | Documentação SRS (IEEE 830), user stories, casos de uso |
+| Coding – Linguagens e Técnicas | Implementação das funcionalidades (Next.js, TypeScript) |
+| Banco de Dados | Modelagem conceitual/lógica, operações CRUD |
+| Criatividade | Prototipagem e melhorias de interface (Figma) |
+| Legislação | Conformidade com LGPD e proteção de dados |
+| Tech English | README bilíngue e documentação do projeto |
+
+### Espaço para Desenvolvimento do PI
+
+A estrutura inicial do projeto foi criada com auxílio de IA e desenvolvida/revisada de forma iterativa através do GitHub.
+
+---
+
 ## 🔗 Links
 
 - 🌐 **Deploy:** https://observatorio-pi-eight.vercel.app
@@ -355,12 +460,12 @@ Desenvolvido pelo **Grupo Observar** — Faculdade SENAC 2026:
 | Nome | Papel | GitHub |
 |---|---|---|
 | Allany Dias | Dev Full Stack & IA | [GitHub](https://github.com/allanydias) |
-| Lorena Torres | Dev Full Stack | [GitHub](https://github.com/lorena-torres07) |
-| José Luis | Dev Backend | GitHub |
-| Mariana Oliveira | UI/UX & Frontend | GitHub |
+| Lorena Torres | Dev Backend| [GitHub](https://github.com/lorena-torres07) |
+| José Luis | Requisitos | GitHub |
+| Mariana Oliveira | UI/UX  | GitHub |
 | Mayara Marina | Requisitos & Documentação | GitHub |
 
-*Professor Orientador: Prof. Guibson Barros *
+*Professor Orientador: Prof. Guibson Barros*
 *Professor Tech English: Prof. Leonardo Lucena*
 
 ---
