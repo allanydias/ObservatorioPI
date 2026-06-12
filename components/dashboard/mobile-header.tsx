@@ -28,7 +28,10 @@ const navByRole: Record<string, { label: string; href: string; icon: React.Eleme
     { label: 'Avaliações', href: '/dashboard/avaliacoes', icon: Award },
     { label: 'Relatórios', href: '/dashboard/relatorios', icon: BarChart3 },
   ],
-  partner: [],
+  partner: [
+  { label: 'Início', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Projetos', href: '/dashboard/projetos', icon: FolderOpen },
+],
 };
 
 export function MobileHeader({ profile }: { profile: Profile }) {
