@@ -165,6 +165,7 @@ Developed by **Group Observar** — Faculdade SENAC 2026:
 *Academic Advisor: Prof. Guibson Barros*
 *Tech English Professor: Prof.Leonardo Lucena*
 
+### 4. Run the project
 
 ---
 
