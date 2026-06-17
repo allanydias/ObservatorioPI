@@ -130,11 +130,58 @@ Access at `http://localhost:3000`
 
 ---
 
+## 🗄️ Database Structure
+
+> 📊 [View the interactive ER diagram on dbdiagram.io](https://dbdiagram.io/d/6a2c33f75c789b8acb723a43)
+
+| Table | Description |
+|---|---|
+| `profiles` | User data |
+| `classes` | Registered classes |
+| `class_professors` | Professor ↔ class relationship |
+| `class_students` | Student ↔ class relationship |
+| `projects` | Submitted projects |
+| `project_members` | Members of each project |
+| `evaluations` | Professor evaluations |
+| `evaluation_criteria` | Evaluation criteria |
+| `ai_recommendations` | AI Mentor recommendations |
+| `privacy_consents` | LGPD consents |
+
+---
+
+## 📁 Folder Structure
+
+```
+├── app/
+│   ├── (auth)/          # Login and registration
+│   ├── api/chat/        # AI Mentor route (Groq)
+│   └── dashboard/       # Authenticated area
+│       ├── usuarios/    # User management (admin)
+│       ├── projetos/    # Projects
+│       ├── turmas/      # Classes
+│       ├── avaliacoes/  # Evaluations
+│       └── chat/        # AI Mentor
+├── components/
+│   ├── dashboard/
+│   ├── projects/
+│   └── ui/
+├── lib/supabase/        # Client and types
+└── hooks/               # Custom hooks
+```
+
+---
+
+## 🔧 Improvements (In Testing)
+
+These features have already been implemented in the codebase, but have not yet been fully tested and may contain bugs:
+
+- **Project versioning:** change history tracking for project submissions
+- **Notifications:** in-app notification system for evaluation updates
+
 ## 📈 Future Improvements
 
 If we had another semester, we would implement:
 
-- **Project versioning:** complete change history identifying which group member was responsible for each submission
 - **File upload:** Supabase Storage integration for PDF, DOCX and PPTX files
 - **Email notifications:** Resend integration for automatic evaluation alerts
 - **Advanced reports:** PDF/CSV data export for administrators
@@ -215,7 +262,7 @@ Developed by **Group Observar** — Faculdade SENAC 2026:
 | Mayara Marina | Requirements & Documentation | GitHub |
 
 *Academic Advisor: Prof. Guibson Barros*
-*Tech English Professor: Prof.Leonardo Lucena*
+*Tech English Professor: Prof. Leonardo Lucena*
 
 ---
 
@@ -340,6 +387,17 @@ Acesse em `http://localhost:3000`
 
 ---
 
+## 📐 Regras de Negócio
+
+- Apenas o Admin pode criar contas de usuário
+- Alunos só podem visualizar e editar seus próprios projetos
+- Professores só podem avaliar projetos das turmas que lhes foram atribuídas
+- Apenas projetos aprovados aparecem no portfólio público
+- Empresas parceiras só podem visualizar projetos aprovados/destacados
+- As respostas do Mentor IA são personalizadas com base no perfil do usuário logado (aluno, professor, parceiro, admin)
+
+---
+
 ## 🗄️ Estrutura do Banco de Dados
 
 > 📊 [Ver diagrama ER interativo no dbdiagram.io](https://dbdiagram.io/d/6a2c33f75c789b8acb723a43)
@@ -381,11 +439,17 @@ Acesse em `http://localhost:3000`
 
 ---
 
+## 🔧 Melhorias (Em Teste)
+
+Estas funcionalidades já foram implementadas no código, mas ainda não foram totalmente testadas e podem conter bugs:
+
+- **Versionamento de projetos:** rastreamento do histórico de alterações nas submissões dos projetos
+- **Notificações:** sistema de notificações in-app para atualizações de avaliação
+
 ## 📈 Melhorias Futuras
 
 Se tivéssemos mais um semestre, implementaríamos:
 
-- **Versionamento de projetos:** histórico completo de alterações com identificação do integrante responsável por cada envio
 - **Upload de arquivos:** integração com Supabase Storage para envio de PDFs, DOCX e PPTX
 - **Notificações por e-mail:** integração com Resend para alertas automáticos de avaliação
 - **Relatórios avançados:** exportação de dados em PDF/CSV pelo administrador
