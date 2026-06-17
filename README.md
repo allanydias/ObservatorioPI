@@ -179,6 +179,7 @@ These features have already been implemented in the codebase, but have not yet b
 - **Notifications:** in-app notification system for evaluation updates
 
 ## 📈 Future Improvements
+(to be honest, this already have)
 
 If we had another semester, we would implement:
 
@@ -449,6 +450,7 @@ Estas funcionalidades já foram implementadas no código, mas ainda não foram t
 ## 📈 Melhorias Futuras
 
 Se tivéssemos mais um semestre, implementaríamos:
+(isso já tem)
 
 - **Upload de arquivos:** integração com Supabase Storage para envio de PDFs, DOCX e PPTX
 - **Notificações por e-mail:** integração com Resend para alertas automáticos de avaliação
